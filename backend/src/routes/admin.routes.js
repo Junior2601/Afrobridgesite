@@ -1,11 +1,11 @@
 const { Router } = require('express');
 const ctrl = require('../controllers/admin.controller');
-const { authenticate, requireRole } = require('../middlewares/auth.middleware');
+const { protect, restrictTo } = require('../middlewares/auth.middleware');
 
 const router = Router();
 
 // Toutes les routes admin nécessitent un token valide + rôle admin
-router.use(authenticate, requireRole('admin'));
+router.use(protect, restrictTo('admin'));
 
 // ── CRUD admins ───────────────────────────────────────────────────────────────
 router.post('/',          ctrl.createAdmin);      // Créer un admin

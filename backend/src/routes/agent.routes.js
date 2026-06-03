@@ -1,18 +1,18 @@
 const { Router } = require('express');
 const ctrl = require('../controllers/agent.controller');
-const { authenticate, requireRole } = require('../middlewares/auth.middleware');
+const { protect, restrictTo } = require('../middlewares/auth.middleware');
 
 const router = Router();
 
 // Inscription publique
 router.post('/', ctrl.createAgent);
 
-router.use(authenticate);
+router.use(protect);
 
-router.get('/',                 requireRole('admin'),           ctrl.getAllAgents);
-router.get('/:id',              requireRole('admin', 'agent'),  ctrl.getAgentById);
-router.patch('/:id',            requireRole('admin', 'agent'),  ctrl.updateAgent);
-router.get('/:id/properties',   requireRole('admin', 'agent'),  ctrl.getAgentProperties);
-router.get('/:id/visits',       requireRole('admin', 'agent'),  ctrl.getAgentVisits);
+router.get('/',                 restrictTo('admin'),           ctrl.getAllAgents);
+router.get('/:id',              restrictTo('admin', 'agent'),  ctrl.getAgentById);
+router.patch('/:id',            restrictTo('admin', 'agent'),  ctrl.updateAgent);
+router.get('/:id/properties',   restrictTo('admin', 'agent'),  ctrl.getAgentProperties);
+router.get('/:id/visits',       restrictTo('admin', 'agent'),  ctrl.getAgentVisits);
 
 module.exports = router;

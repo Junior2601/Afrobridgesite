@@ -1,4 +1,4 @@
-const { query } = require('../../db');
+const { query } = require('../config/db');
 const base = require('./base.model');
 
 /**

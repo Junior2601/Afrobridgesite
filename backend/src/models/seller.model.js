@@ -1,93 +1,93 @@
-const { requête } = require('../../db');
+const { query } = require('../config/db');
 const base = require('./base.model');
 
 /**
- * vendeur.model.js
+ * seller.model.js
  * Opérations DB spécifiques au rôle "seller" (vendeur).
  */
 
-// ── Création utilisateur vendeur ─────────────────────── ───────────────────────
-const créer = ({ nom_complet, email, hachage_mot_de_passe, téléphone, pays, ville, langue }) =>
-  requête(
+// ── Création utilisateur vendeur ──────────────────────────────────────────────
+const create = ({ full_name, email, password_hash, phone, country, city, language }) =>
+  query(
     `INSERT INTO users
-       (nom_complet, email, hachage_mot_de_passe, téléphone, pays, ville, langue, rôle)
-     VALEURS ($1,$2,$3,$4,$5,$6,$7,'vendeur')
-     RETOURNANT id, nom_complet, email, téléphone, rôle, est_actif, est_vérifié, créé_à`,
+       (full_name, email, password_hash, phone, country, city, language, role)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,'seller')
+     RETURNING id, full_name, email, phone, role, is_active, is_verified, created_at`,
     [full_name, email, password_hash, phone ?? null, country ?? null, city ?? null, language ?? 'fr']
   );
 
-// ── Création de la boutique liée ─────────────────────── ───────────────────────
+// ── Création de la boutique liée ──────────────────────────────────────────────
 const createShop = (userId, { name, slug, description, logo_url, banner_url }) =>
-  requête(
+  query(
     `INSERT INTO shops (user_id, name, slug, description, logo_url, banner_url)
-     VALEURS (1 $, 2 $, 3 $, 4 $, 5 $, 6 $)
-     RETOURNER *`,
+     VALUES ($1,$2,$3,$4,$5,$6)
+     RETURNING *`,
     [userId, name, slug, description ?? null, logo_url ?? null, banner_url ?? null]
   );
 
-// ── Conférence ────────────────────────────────────────────────────────────────
+// ── Lecture ───────────────────────────────────────────────────────────────────
 const findAll = ({ limit = 20, offset = 0 } = {}) =>
-  requête(
+  query(
     `SELECT u.id, u.full_name, u.email, u.phone, u.is_active, u.is_verified,
             u.created_at, s.id AS shop_id, s.name AS shop_name, s.status AS shop_status
-     DE LA PART des utilisateurs u
+     FROM users u
      LEFT JOIN shops s ON s.user_id = u.id
-     OÙ u.role = 'vendeur'
+     WHERE u.role = 'seller'
      ORDER BY u.created_at DESC LIMIT $1 OFFSET $2`,
-    [limite, décalage]
+    [limit, offset]
   );
 
 const findById = (id) =>
-  requête(
+  query(
     `SELECT u.id, u.full_name, u.email, u.phone, u.country, u.city, u.language,
             u.avatar_url, u.role, u.is_active, u.is_verified, u.created_at, u.updated_at,
             s.id AS shop_id, s.name AS shop_name, s.slug AS shop_slug,
             s.status AS shop_status, s.commission_rate
-     DE LA PART des utilisateurs u
+     FROM users u
      LEFT JOIN shops s ON s.user_id = u.id
-     OÙ u.id = $1 ET u.role = 'vendeur'`,
-    [identifiant]
+     WHERE u.id = $1 AND u.role = 'seller'`,
+    [id]
   );
 
-// ── Produits & services de la boutique ──────────────────── ────────────────────
+// ── Produits & services de la boutique ────────────────────────────────────────
 const findProducts = (userId, { limit = 20, offset = 0 } = {}) =>
-  requête(
+  query(
     `SELECT p.id, p.title, p.price, p.stock, p.status, p.rating_avg, p.created_at
-     À partir des produits p
+     FROM products p
      JOIN shops s ON s.id = p.shop_id
-     OÙ s.user_id = $1
+     WHERE s.user_id = $1
      ORDER BY p.created_at DESC LIMIT $2 OFFSET $3`,
-    [userId, limite, décalage]
+    [userId, limit, offset]
   );
 
 const findServices = (userId, { limit = 20, offset = 0 } = {}) =>
-  requête(
+  query(
     `SELECT sv.id, sv.title, sv.price, sv.status, sv.rating_avg, sv.created_at
-     DE services sv
+     FROM services sv
      JOIN shops s ON s.id = sv.shop_id
-     OÙ s.user_id = $1
+     WHERE s.user_id = $1
      ORDER BY sv.created_at DESC LIMIT $2 OFFSET $3`,
-    [userId, limite, décalage]
+    [userId, limit, offset]
   );
 
-// ── Revenus (paiements) ──────────────────────────── ─────────────────────────────
+// ── Revenus (payouts) ─────────────────────────────────────────────────────────
 const findPayouts = (userId) =>
-  requête(
+  query(
     `SELECT py.id, py.amount, py.status, py.method, py.reference, py.processed_at
      FROM payouts py
      JOIN shops s ON s.id = py.shop_id
-     OÙ s.user_id = $1
+     WHERE s.user_id = $1
      ORDER BY py.created_at DESC`,
-    [ID de l'utilisateur]
+    [userId]
   );
 
 module.exports = {
   ...base,
-  trouverParId,
-  trouverTout,
-  créer,
-  créerBoutique,
-  trouver des produits,
-  trouverServices,
-  trouver les paiements,
+  findById,
+  findAll,
+  create,
+  createShop,
+  findProducts,
+  findServices,
+  findPayouts,
 };

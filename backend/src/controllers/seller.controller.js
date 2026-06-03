@@ -1,61 +1,61 @@
 const SellerService = require('../services/seller.service');
 
 const respond = (res, data, status = 200) => res.status(status).json({ success: true, data });
-const fail = (res, err) => res.status(err.status ?? 500).json({ success: false, message: err.message ?? 'Erreur serveur.' });
+const fail    = (res, err) => res.status(err.status ?? 500).json({ success: false, message: err.message ?? 'Erreur serveur.' });
 
-// POST /vendeurs
+// POST /sellers
 const createSeller = async (req, res) => {
-  essayer {
-    const vendeur = await SellerService.createSeller(req.body);
-    répondre(res, vendeur, 201);
+  try {
+    const seller = await SellerService.createSeller(req.body);
+    respond(res, seller, 201);
   } catch (err) { fail(res, err); }
 };
 
 // GET /sellers
 const getAllSellers = async (req, res) => {
-  essayer {
-    const vendeurs = await SellerService.getAllSellers({ page: +req.query.page || 1, limit: +req.query.limit || 20 });
-    répondre(res, vendeurs);
+  try {
+    const sellers = await SellerService.getAllSellers({ page: +req.query.page || 1, limit: +req.query.limit || 20 });
+    respond(res, sellers);
   } catch (err) { fail(res, err); }
 };
 
 // GET /sellers/:id
 const getSellerById = async (req, res) => {
-  essayer {
-    const vendeur = await SellerService.getSellerById(+req.params.id);
-    répondre(res, vendeur);
+  try {
+    const seller = await SellerService.getSellerById(+req.params.id);
+    respond(res, seller);
   } catch (err) { fail(res, err); }
 };
 
 // PATCH /sellers/:id
 const updateSeller = async (req, res) => {
-  essayer {
-    const vendeur = await SellerService.updateSeller(+req.params.id, req.body);
-    répondre(res, vendeur);
+  try {
+    const seller = await SellerService.updateSeller(+req.params.id, req.body);
+    respond(res, seller);
   } catch (err) { fail(res, err); }
 };
 
 // GET /sellers/:id/products
 const getSellerProducts = async (req, res) => {
-  essayer {
-    const produits = await SellerService.getSellerProducts(+req.params.id, req.query);
-    répondre(res, produits);
+  try {
+    const products = await SellerService.getSellerProducts(+req.params.id, req.query);
+    respond(res, products);
   } catch (err) { fail(res, err); }
 };
 
 // GET /sellers/:id/services
 const getSellerServices = async (req, res) => {
-  essayer {
+  try {
     const services = await SellerService.getSellerServices(+req.params.id, req.query);
-    répondre(res, services);
+    respond(res, services);
   } catch (err) { fail(res, err); }
 };
 
 // GET /sellers/:id/payouts
 const getSellerPayouts = async (req, res) => {
-  essayer {
+  try {
     const payouts = await SellerService.getSellerPayouts(+req.params.id);
-    répondre(res, paiements);
+    respond(res, payouts);
   } catch (err) { fail(res, err); }
 };
 
